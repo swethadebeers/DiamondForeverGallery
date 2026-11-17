@@ -1,10 +1,41 @@
 ﻿@page
+@using DiamondForeverGallery.Models
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Gallery";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h1 class="mb-4">Gallery</h1>
+<form method="get" class="mb-4">
+    <select name="Category" class="form-select d-inline-block w-auto">
+        <option value="">All Categories</option>
+        @foreach (var category in Enum.GetValues<PhotoCategory>())
+        {
+            <option value="@category"
+                    selected="@(Model.Category == category)">@category</option>
+        }
+    </select>
+    <button type="submit" class="btn btn-primary">Filter</button>
+</form>
+@if (Model.Photos.Count == 0)
+{
+    <p>No photos yet. <a asp-page="/Upload">Upload the first one.</a></p>
+}
+
+<div class="row">
+    @foreach (var photo in Model.Photos)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <a asp-page="/Photos/Details" asp-route-id="@photo.Id">
+                    <img src="@photo.ImageUri" class="card-img-top" alt="@photo.Title" />
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">@photo.Title</h5>
+                    <p class="card-text mb-1">@photo.Category</p>
+                    <p class="card-text text-muted small">@photo.DateAdded.ToString("d MMM yyyy")</p>
+                </div>
+            </div>
+        </div>
+    }
 </div>

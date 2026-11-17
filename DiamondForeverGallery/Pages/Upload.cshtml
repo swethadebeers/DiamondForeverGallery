@@ -1,0 +1,38 @@
+@page
+@using DiamondForeverGallery.Models
+@model UploadModel
+@{
+    ViewData["Title"] = "Upload photo";
+}
+
+<h1>Upload photo</h1>
+
+<form method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Input.Title" class="form-label"></label>
+        <input asp-for="Input.Title" class="form-control" />
+        <span asp-validation-for="Input.Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Input.Story" class="form-label"></label>
+        <textarea asp-for="Input.Story" class="form-control" rows="5"></textarea>
+        <span asp-validation-for="Input.Story" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Input.Category" class="form-label"></label>
+        <select asp-for="Input.Category" asp-items="Html.GetEnumSelectList<PhotoCategory>()" class="form-select"></select>
+        <span asp-validation-for="Input.Category" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Input.Photo" class="form-label"></label>
+        <input asp-for="Input.Photo" type="file" accept="image/*" class="form-control" />
+        <span asp-validation-for="Input.Photo" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Upload</button>
+</form>
