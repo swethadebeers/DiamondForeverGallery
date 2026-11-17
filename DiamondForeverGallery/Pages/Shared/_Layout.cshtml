@@ -1,10 +1,15 @@
-﻿<!DOCTYPE html>
+﻿@*
+    _Layout.cshtml - the master template for every page. It contains the HTML head,
+    the navigation bar, the footer, and the scripts. @RenderBody() is where each page's content goes.
+*@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - DiamondForeverGallery</title>
     <script type="importmap"></script>
+    @* Bootstrap is the CSS framework used for layout and styling. *@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/DiamondForeverGallery.styles.css" asp-append-version="true" />
@@ -36,6 +41,7 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+            @* Each page's own HTML is inserted here. *@
             @RenderBody()
         </main>
     </div>
@@ -50,6 +56,7 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
+    @* Lets individual pages add their own scripts (for example, validation scripts) at the bottom. *@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

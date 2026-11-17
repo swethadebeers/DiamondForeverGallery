@@ -2,12 +2,14 @@ using DiamondForeverGallery.Data;
 using DiamondForeverGallery.Services;
 using Microsoft.EntityFrameworkCore;
 
+// Step 1: Create the builder. It loads settings (appsettings.json) and sets up the services container.
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Registers PhotoStorageService as a singleton: one instance is shared by the whole app.
 builder.Services.AddSingleton<PhotoStorageService>();
 
 var app = builder.Build();
@@ -20,6 +22,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// Redirects http:// requests to https:// for security.
 app.UseHttpsRedirection();
 
 app.UseRouting();
@@ -27,6 +30,7 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+// Connects each .cshtml page in the Pages folder to a URL.
 app.MapRazorPages()
    .WithStaticAssets();
 

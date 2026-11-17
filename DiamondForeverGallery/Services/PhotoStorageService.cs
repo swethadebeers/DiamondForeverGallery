@@ -5,6 +5,9 @@ using Azure.Storage.Sas;
 
 namespace DiamondForeverGallery.Services;
 
+/// <summary>
+/// Handles the photo files in Azure Blob Storage: uploading them and creating temporary, secure links to view them.
+/// </summary>
 public class PhotoStorageService
 {
     private readonly BlobServiceClient _serviceClient;
@@ -20,7 +23,10 @@ public class PhotoStorageService
         _container = _serviceClient.GetBlobContainerClient(containerName);
     }
 
-    public async Task<string> UploadAsync(Stream content, string contentType, string fileExtension, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Saves a file to blob storage under a unique name and returns that name.
+    /// </summary>
+    public async Task<string> UploadAsync(
     {
         var blobName = $"{Guid.NewGuid():N}{fileExtension}";
         var blob = _container.GetBlobClient(blobName);
@@ -33,13 +39,17 @@ public class PhotoStorageService
         return blobName;
     }
 
-    public async Task<Uri> GetReadUriAsync(string blobName, TimeSpan validFor, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Creates a link to a blob that works only for a limited time (a "SAS" link).
+    /// </summary>
+    public async Task<Uri> GetReadUriAsync(
     {
         var blob = _container.GetBlobClient(blobName);
         var startsOn = DateTimeOffset.UtcNow.AddMinutes(-5);
         var expiresOn = DateTimeOffset.UtcNow.Add(validFor);
 
-        var userDelegationKey = await _serviceClient.GetUserDelegationKeyAsync(startsOn, expiresOn, cancellationToken);
+        // A key from Azure AD (via DefaultAzureCredential) used to sign the link without storing account keys.
+        var userDelegationKey
 
         var sasBuilder = new BlobSasBuilder
         {

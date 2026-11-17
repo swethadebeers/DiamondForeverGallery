@@ -7,16 +7,27 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DiamondForeverGallery.Pages;
 
-public class IndexModel(ApplicationDbContext db, PhotoStorageService storage) : PageModel
+/// <summary>
+/// Code behind the Gallery (home) page. Loads the list of photos, optionally filtered by category.
+/// </summary>
+public class IndexModel(
 {
-    public List<PhotoView> Photos { get; set; } = [];
+    /// <summary>
+    /// The photos shown on the page, newest first.
+    /// </summary>
+    public List<PhotoView> Photos
 
+    // Reads the "Category" value from the URL query string (for example ?Category=Wedding).
     [BindProperty(SupportsGet = true)]
     public PhotoCategory? Category { get; set; }
 
+    /// <summary>
+    /// Runs when the Gallery page is opened. Loads photos and builds their image links.
+    /// </summary>
     public async Task OnGetAsync(CancellationToken cancellationToken)
     {
         var query = db.GalleryPhotos.AsNoTracking();
+        // Only filter when the user picked a category; otherwise show all photos.
         if(Category is not null)
         {
             query = query.Where(p => p.Category == Category);
@@ -40,6 +51,9 @@ public class IndexModel(ApplicationDbContext db, PhotoStorageService storage) : 
         Photos = views;
     }
 
+    /// <summary>
+    /// A simplified photo object for the page. It includes the ready-to-use image link (ImageUri).
+    /// </summary>
     public class PhotoView
     {
         public int Id { get; set; }

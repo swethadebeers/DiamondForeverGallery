@@ -7,15 +7,24 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DiamondForeverGallery.Pages;
 
-public class UploadModel(ApplicationDbContext db, PhotoStorageService  storage) : PageModel
+/// <summary>
+/// Code behind the Upload page. Checks the uploaded photo, saves it to storage, then saves its details to the database.
+/// </summary>
+public class UploadModel(
 {
-    private static readonly string[] AllowedContentTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    // Allowed file types. Checked against both the MIME type and the file extension.
+    private static readonly string[] AllowedContentTypes
     private static readonly string[] AllowedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
-    private const long MaxFileBytes = 10 * 1024 * 1024;
+    // 10 MB limit (10 x 1024 x 1024 bytes).
+    private const long MaxFileBytes
 
+    // Holds the form values. [BindProperty] copies the submitted form data into this object.
     [BindProperty]
     public InputModel Input { get; set; } = new();
 
+    /// <summary>
+    /// The form fields the user fills in. Validation attributes (like [Required]) are checked automatically.
+    /// </summary>
     public class InputModel
     {
         [Required, StringLength(100)]
@@ -35,7 +44,10 @@ public class UploadModel(ApplicationDbContext db, PhotoStorageService  storage) 
     {
     }
 
-    public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
+    /// <summary>
+    /// Runs when the user clicks Upload (a POST request). Returns the form again if something is wrong.
+    /// </summary>
+    public async Task<IActionResult> OnPostAsync(
     {
         var file = Input.Photo;
         if (file is not null)
@@ -51,14 +63,17 @@ public class UploadModel(ApplicationDbContext db, PhotoStorageService  storage) 
             }
         }
 
+        // If any validation error exists, redisplay the form so the user can fix it.
         if (!ModelState.IsValid || file is null)
         {
             return Page();
         }
 
+        // Open the file and upload it to blob storage. "await using" closes the stream when done.
         await using var stream = file.OpenReadStream();
         var blobName = await storage.UploadAsync(stream, file.ContentType, Path.GetExtension(file.FileName).ToLowerInvariant(), cancellationToken);
 
+        // Save the photo's details. The image file itself lives in storage; the database keeps its name.
         db.GalleryPhotos.Add(new GalleryPhoto
         {
             Title = Input.Title,
@@ -69,6 +84,7 @@ public class UploadModel(ApplicationDbContext db, PhotoStorageService  storage) 
         });
         await db.SaveChangesAsync(cancellationToken);
 
+        // Success: send the user back to the Gallery page (PRG pattern prevents duplicate uploads on refresh).
         return RedirectToPage("/Index");
     }
 }

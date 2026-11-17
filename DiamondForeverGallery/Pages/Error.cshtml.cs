@@ -4,8 +4,13 @@ using System.Diagnostics;
 
 namespace DiamondForeverGallery.Pages
 {
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    // Tells browsers and proxies never to cache the error page.
+    [ResponseCache(
+    // Lets the error page work even if the security token check fails.
     [IgnoreAntiforgeryToken]
+    /// <summary>
+    /// Code behind the Error page shown when something goes wrong. It shows a request ID to help track the problem.
+    /// </summary>
     public class ErrorModel : PageModel
     {
         public string? RequestId { get; set; }
@@ -14,7 +19,8 @@ namespace DiamondForeverGallery.Pages
 
         public void OnGet()
         {
-            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+            // Use the trace ID if available; otherwise fall back to the request's own identifier.
+            RequestId = Activity.Current
         }
     }
 
