@@ -1,7 +1,4 @@
-﻿@*
-    Index.cshtml - the Gallery (home) page. Shows all photos as cards and
-    lets the user filter them by category.
-*@
+﻿@* Home page: shows the photo gallery and a category filter. *@
 @page
 @using DiamondForeverGallery.Models
 @model IndexModel
@@ -10,10 +7,11 @@
 }
 
 <h1 class="mb-4">Gallery</h1>
-@* GET form: submitting it puts the chosen category in the URL, e.g. ?Category=Wedding. *@
+@* GET form that reloads the page with ?Category=... to filter photos. *@
 <form method="get" class="mb-4">
     <select name="Category" class="form-select d-inline-block w-auto">
         <option value="">All Categories</option>
+        @* One dropdown option per PhotoCategory value; the current filter stays selected. *@
         @foreach (var category in Enum.GetValues<PhotoCategory>())
         {
             <option value="@category"
@@ -22,19 +20,18 @@
     </select>
     <button type="submit" class="btn btn-primary">Filter</button>
 </form>
-@* Shown only when there are no photos to display. *@
+@* Shown when no photos match the current filter. *@
 @if (Model.Photos.Count == 0)
 {
     <p>No photos yet. <a asp-page="/Upload">Upload the first one.</a></p>
 }
 
+@* One Bootstrap card per photo. ImageUri is a temporary read link created in IndexModel. *@
 <div class="row">
-    @* Loop: create one card for each photo in the list. *@
     @foreach (var photo in Model.Photos)
     {
         <div class="col-md-4 mb-4">
             <div class="card h-100">
-                @* Clicking the image opens the Details page for that photo. *@
                 <a asp-page="/Photos/Details" asp-route-id="@photo.Id">
                     <img src="@photo.ImageUri" class="card-img-top" alt="@photo.Title" />
                 </a>

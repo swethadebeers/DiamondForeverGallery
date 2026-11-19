@@ -1,40 +1,20 @@
-﻿@* 
-    Details.cshtml - the "detail" page for a single photo.
-
-    Route: /Photos/Details/{id}
-    The {id:int} part of the @page directive means the URL must end with a
-    whole number (for example /Photos/Details/5). ASP.NET Core passes that
-    number to the OnGetAsync method in Details.cshtml.cs.
-
-    @model DetailsModel tells Razor which C# class holds the data for this page.
-    Inside the page, "Model" refers to that DetailsModel object.
-*@
-@page "{id:int}"
+﻿@page "{id:int}"
 @model DetailsModel
 @{
-    @* Sets the browser tab title to the photo's title. *@
     ViewData["Title"] = Model.Photo.Title;
 }
 
-@* asp-page creates a link to the Index page (the gallery). *@
 <p><a asp-page="/Index">&larr; Back to gallery</a></p>
 
-@* Bootstrap "row" splits the page into columns. On large screens: image takes 7/12 width, text takes 5/12. *@
 <div class="row">
-    @* Left column: the photo. ImageUri is a link to the image in storage. *@
     <div class="col-lg-7 mb-4">
         <img src="@Model.Photo.ImageUri" class="img-fluid rounded" alt="@Model.Photo.Title" />
     </div>
-
-    @* Right column: the photo's details. The @ symbol switches from HTML into C#. *@
     <div class="col-lg-5">
         <h1>@Model.Photo.Title</h1>
-
-        @* Category and date added. ToString("d MMM yyyy") formats the date, e.g. "5 Jan 2025". *@
         <p class="text-muted">
             @Model.Photo.Category &middot; @Model.Photo.DateAdded.ToString("d MMM yyyy")
         </p>
-
         <p>@Model.Photo.Description</p>
     </div>
 </div>

@@ -10,12 +10,12 @@ namespace DiamondForeverGallery.Pages;
 /// <summary>
 /// Code behind the Gallery (home) page. Loads the list of photos, optionally filtered by category.
 /// </summary>
-public class IndexModel(
+public class IndexModel(ApplicationDbContext db, PhotoStorageService storage) : PageModel
 {
     /// <summary>
     /// The photos shown on the page, newest first.
     /// </summary>
-    public List<PhotoView> Photos
+    public List<PhotoView> Photos { get; set; } = [];
 
     // Reads the "Category" value from the URL query string (for example ?Category=Wedding).
     [BindProperty(SupportsGet = true)]

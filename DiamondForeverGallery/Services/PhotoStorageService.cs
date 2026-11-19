@@ -5,9 +5,6 @@ using Azure.Storage.Sas;
 
 namespace DiamondForeverGallery.Services;
 
-/// <summary>
-/// Handles the photo files in Azure Blob Storage: uploading them and creating temporary, secure links to view them.
-/// </summary>
 public class PhotoStorageService
 {
     private readonly BlobServiceClient _serviceClient;
@@ -15,22 +12,29 @@ public class PhotoStorageService
 
     public PhotoStorageService(IConfiguration configuration)
     {
-        var accountUri = configuration["BlobStorage:AccountUri"]
-            ?? throw new InvalidOperationException("BlobStorage:AccountUri is not configured.");
         var containerName = configuration["BlobStorage:ContainerName"] ?? "photos";
+        var connectionString = configuration["BlobStorage:ConnectionString"];
 
-        _serviceClient = new BlobServiceClient(new Uri(accountUri), new DefaultAzureCredential());
+        if (!string.IsNullOrEmpty(connectionString))
+        {
+            _serviceClient = new BlobServiceClient(connectionString);
+        }
+        else
+        {
+            var accountUri = configuration["BlobStorage:AccountUri"]
+                ?? throw new InvalidOperationException("BlobStorage:AccountUri is not configured.");
+            _serviceClient = new BlobServiceClient(new Uri(accountUri), new DefaultAzureCredential());
+        }
+
         _container = _serviceClient.GetBlobContainerClient(containerName);
     }
 
-    /// <summary>
-    /// Saves a file to blob storage under a unique name and returns that name.
-    /// </summary>
-    public async Task<string> UploadAsync(
+    public async Task<string> UploadAsync(Stream content, string contentType, string fileExtension, CancellationToken cancellationToken = default)
     {
         var blobName = $"{Guid.NewGuid():N}{fileExtension}";
         var blob = _container.GetBlobClient(blobName);
 
+        await _container.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
         await blob.UploadAsync(content, new BlobUploadOptions
         {
             HttpHeaders = new BlobHttpHeaders { ContentType = contentType }
@@ -39,17 +43,19 @@ public class PhotoStorageService
         return blobName;
     }
 
-    /// <summary>
-    /// Creates a link to a blob that works only for a limited time (a "SAS" link).
-    /// </summary>
-    public async Task<Uri> GetReadUriAsync(
+    public async Task<Uri> GetReadUriAsync(string blobName, TimeSpan validFor, CancellationToken cancellationToken = default)
     {
         var blob = _container.GetBlobClient(blobName);
+
+        if (blob.CanGenerateSasUri)
+        {
+            return blob.GenerateSasUri(BlobSasPermissions.Read, DateTimeOffset.UtcNow.Add(validFor));
+        }
+
         var startsOn = DateTimeOffset.UtcNow.AddMinutes(-5);
         var expiresOn = DateTimeOffset.UtcNow.Add(validFor);
 
-        // A key from Azure AD (via DefaultAzureCredential) used to sign the link without storing account keys.
-        var userDelegationKey
+        var userDelegationKey = await _serviceClient.GetUserDelegationKeyAsync(startsOn, expiresOn, cancellationToken);
 
         var sasBuilder = new BlobSasBuilder
         {
