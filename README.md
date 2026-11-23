@@ -69,13 +69,23 @@ Settings are stored in `appsettings.json`:
 
 Do not put passwords or secrets in this file.
 
-## Common Tasks
+## Exercises
 
-- **Add a database change:** Use the Package Manager Console and run `Add-Migration <Name>`, then `Update-Database`.
-- **Change the look:** Edit `wwwroot/css/site.css` or `Pages/Shared/_Layout.cshtml`.
-- **Add a new page:** Right-click the `Pages` folder in Visual Studio and choose **Add > Razor Page**.
+Look for `TODO` comments in the code. Each one marks a student exercise:
+
+- `Pages/Index.cshtml`: change the page title (TODO Exercise 1).
+- `Pages/About.cshtml`: replace the placeholder text (TODO Exercise 2).
+- `Models/GalleryPhoto.cs`: add `Holiday` to `PhotoCategory` (TODO Exercise 3).
 
 ## Troubleshooting
+
+### Local (Development)
+
+- **Cannot connect to the database:** Make sure LocalDB is installed and that `$env:ASPNETCORE_ENVIRONMENT = "Development"` was set before you ran `Update-Database`.
+- **Photos do not upload or images are broken:** Make sure Azurite is running in its own terminal (`azurite --blobHost 127.0.0.1`) and stays open while you use the app.
+- **Page shows an error:** Look at the Output window and the Error page for details.
+
+### Azure (Production)
 
 - **Cannot connect to the database:** Check that you are signed in to Visual Studio with an account that has access to the Azure SQL server.
 - **Photos do not upload:** Check the `BlobStorage` settings and your access to the storage account.
