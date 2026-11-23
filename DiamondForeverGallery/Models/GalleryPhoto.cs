@@ -29,6 +29,7 @@ public enum PhotoCategory
     Anniversary,
     Wedding,
     Birthday,
+    // TODO (Exercise 3): Add Holiday to this enum. It appears in the filter and upload dropdowns automatically.
     Other
 }
 
