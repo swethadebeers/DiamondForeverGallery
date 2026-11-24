@@ -43,6 +43,12 @@ public class PhotoStorageService
         return blobName;
     }
 
+    public async Task DeleteAsync(string blobName, CancellationToken cancellationToken = default)
+    {
+        var blob = _container.GetBlobClient(blobName);
+        await blob.DeleteIfExistsAsync(cancellationToken: cancellationToken);
+    }
+
     public async Task<Uri> GetReadUriAsync(string blobName, TimeSpan validFor, CancellationToken cancellationToken = default)
     {
         var blob = _container.GetBlobClient(blobName);

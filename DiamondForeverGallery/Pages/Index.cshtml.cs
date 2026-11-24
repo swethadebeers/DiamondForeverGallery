@@ -1,3 +1,4 @@
+using Azure;
 using DiamondForeverGallery.Data;
 using DiamondForeverGallery.Models;
 using DiamondForeverGallery.Services;
@@ -10,7 +11,7 @@ namespace DiamondForeverGallery.Pages;
 /// <summary>
 /// Code behind the Gallery (home) page. Loads the list of photos, optionally filtered by category.
 /// </summary>
-public class IndexModel(ApplicationDbContext db, PhotoStorageService storage) : PageModel
+public class IndexModel(ApplicationDbContext db, PhotoStorageService storage, ILogger<IndexModel> logger) : PageModel
 {
     /// <summary>
     /// The photos shown on the page, newest first.
@@ -49,6 +50,38 @@ public class IndexModel(ApplicationDbContext db, PhotoStorageService storage) : 
         }
 
         Photos = views;
+    }
+
+    public async Task<IActionResult> OnPostDeleteAsync(int id, CancellationToken cancellationToken)
+    {
+        var photo = await db.GalleryPhotos.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        if (photo is null)
+        {
+            return NotFound();
+        }
+
+        try
+        {
+            await storage.DeleteAsync(photo.ImageUrl, cancellationToken);
+            db.GalleryPhotos.Remove(photo);
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch (RequestFailedException ex)
+        {
+            logger.LogError(ex, "Failed to delete the stored image for gallery photo {PhotoId}.", id);
+            ModelState.AddModelError(string.Empty, "The image could not be deleted from storage, so the jewelry item was not removed.");
+            await OnGetAsync(cancellationToken);
+            return Page();
+        }
+        catch (DbUpdateException ex)
+        {
+            logger.LogError(ex, "Failed to delete gallery photo {PhotoId} from the database after deleting its image.", id);
+            ModelState.AddModelError(string.Empty, "The image was deleted from storage, but the jewelry item could not be removed from the collection. Submit the delete action again to finish.");
+            await OnGetAsync(cancellationToken);
+            return Page();
+        }
+
+        return RedirectToPage(new { Category });
     }
 
     /// <summary>
