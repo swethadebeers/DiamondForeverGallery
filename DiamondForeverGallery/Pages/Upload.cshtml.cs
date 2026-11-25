@@ -72,3 +72,4 @@ public class UploadModel(ApplicationDbContext db, PhotoStorageService  storage) 
         return RedirectToPage("/Index");
     }
 }
+

@@ -4,10 +4,9 @@
 @model IndexModel
 @{
     // TODO (Exercise 1): Change the page title from "Gallery" to a title of your choice.
-    ViewData["Title"] = "Gallery";
+    ViewData["Title"] = "Jewllery collection";
 }
-
-<h1 class="mb-4">Gallery</h1>
+<h1 class="mb-4">Jewllery collection</h1>
 @* GET form that reloads the page with ?Category=... to filter photos. *@
 <form method="get" class="mb-4">
     <select name="Category" class="form-select d-inline-block w-auto">
@@ -21,6 +20,7 @@
     </select>
     <button type="submit" class="btn btn-primary">Filter</button>
 </form>
+<div asp-validation-summary="All" class="text-danger mb-3"></div>
 @* Shown when no photos match the current filter. *@
 @if (Model.Photos.Count == 0)
 {
@@ -40,6 +40,12 @@
                     <h5 class="card-title">@photo.Title</h5>
                     <p class="card-text mb-1">@photo.Category</p>
                     <p class="card-text text-muted small">@photo.DateAdded.ToString("d MMM yyyy")</p>
+                    <div class="d-flex gap-2">
+                        <a asp-page="/Photos/Edit" asp-route-id="@photo.Id" class="btn btn-secondary">Edit</a>
+                        <form method="post" asp-page-handler="Delete" asp-route-id="@photo.Id" asp-route-Category="@Model.Category" onsubmit="return confirm('Delete this jewelry item and its uploaded image?');">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
